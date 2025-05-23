@@ -1,0 +1,57 @@
+# Web Framework and Socket Dependencies
+Flask==3.1.1
+Flask-SocketIO==5.3.6
+python-socketio==5.9.0
+python-engineio==4.8.0
+gunicorn==23.0.0
+gevent==24.2.1
+gevent-websocket==0.10.1
+
+# Audio and Video Processing
+ffmpeg-python==0.2.0
+librosa==0.10.2.post1
+soundfile==0.13.1
+scipy==1.14.1
+numpy==1.26.4
+noisereduce==3.0.2
+
+# ML and NLP Dependencies
+torch==2.7.0
+torchaudio==2.7.0
+torchvision==0.22.0
+transformers==4.52.3
+sentencepiece==0.2.0
+nltk==3.9.1
+langdetect==1.0.9
+scikit-learn==1.6.1
+
+# YouTube Download and Processing
+yt-dlp==2024.10.22
+moviepy==2.0.0.dev2
+
+# Utility Packages
+watchdog==6.0.0
+tqdm==4.67.1
+regex==2024.11.6
+requests==2.32.3
+pyyaml==6.0.2
+more-itertools==10.7.0
+joblib==1.5.0
+
+# File Handling and System
+psutil==7.0.0
+platformdirs==4.3.8
+
+# Optional: Development Dependencies
+pytest==8.0.0
+black==24.1.1
+flake8==7.0.0
+
+# Additional Dependencies
+bidict==0.23.1
+Werkzeug==3.1.3
+click==8.2.0
+Jinja2==3.1.6
+itsdangerous==2.2.0
+setuptools>=80.7.1
+wheel>=0.43.0
