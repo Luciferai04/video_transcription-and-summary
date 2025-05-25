@@ -1,3 +1,4 @@
+
 import streamlit as st
 import os
 import tempfile
@@ -159,7 +160,16 @@ def process_video(video_path, is_youtube=False):
         
         # Display the transcription
         st.subheader("Transcription")
-        st.text_area("Full Transcription", full_transcription, height=200)
+        st.text_area("Full Transcription", full_transcription, height=200, key="main_transcript")
+        
+        # Download button for transcription
+        if full_transcription:
+            st.download_button(
+                label="Download Full Transcription",
+                data=full_transcription,
+                file_name="transcription.txt",
+                mime="text/plain"
+            )
         
         # Memory cleanup after transcription
         gc.collect()
@@ -189,6 +199,14 @@ def process_video(video_path, is_youtube=False):
             # Display summary
             st.subheader("Summary")
             st.write(summary)
+            # Download button for summary
+            if summary:
+                st.download_button(
+                    label="Download Summary",
+                    data=summary,
+                    file_name="summary.txt",
+                    mime="text/plain"
+                )
         
         # Update processing status
         st.session_state.processing_status = "generating_questions"
@@ -207,6 +225,14 @@ def process_video(video_path, is_youtube=False):
                 else:
                     for i, question in enumerate(questions, 1):
                         st.write(f"{i}. {question}")
+                    # Download button for questions
+                    questions_text = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions)])
+                    st.download_button(
+                        label="Download Questions",
+                        data=questions_text,
+                        file_name="questions.txt",
+                        mime="text/plain"
+                    )
                         
                 question_status.success("Questions generated successfully!")
             except Exception as e:
@@ -215,6 +241,25 @@ def process_video(video_path, is_youtube=False):
         
         # Update processing status
         st.session_state.processing_status = "complete"
+        
+        # Add a combined download button for all content
+        if st.session_state.processing_status == "complete":
+            # Combine all generated content with section headers
+            combined_content = "# TRANSCRIPTION\n\n"
+            combined_content += full_transcription
+            combined_content += "\n\n# SUMMARY\n\n"
+            combined_content += summary
+            combined_content += "\n\n# QUESTIONS\n\n"
+            combined_content += questions_text
+            
+            # Create download button for combined content
+            st.download_button(
+                label="Download All Content",
+                data=combined_content,
+                file_name="video_content_all.txt",
+                mime="text/plain",
+                help="Download the full transcription, summary, and questions in a single file"
+            )
         
         # Final cleanup
         cleanup_temp_files()
