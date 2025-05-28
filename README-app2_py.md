@@ -27,7 +27,7 @@
 ## 1. Environment Setup
 
 ```bash
-cd /Users/soumyajitghosh/Downloads/video_transcription-and-summary-main
+cd "path name"
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
