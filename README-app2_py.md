@@ -27,7 +27,7 @@
 ## 1. Environment Setup
 
 ```bash
-cd "path name"
+cd "system path name"
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
