@@ -1138,6 +1138,98 @@ def scheduled_cleanup():
         import traceback
         logger.error(traceback.format_exc())
 
+@app.route('/download_results', methods=['GET'])
+def download_results():
+    """Download transcription, summary, and questions as a text file"""
+    try:
+        session_id = request.args.get('session_id')
+        if not session_id:
+            return jsonify({"error": "No session ID provided"}), 400
+        
+        if session_id not in transcription_results:
+            return jsonify({"error": "No transcription found for this session"}), 404
+        
+        result = transcription_results[session_id]
+        
+        # Check if at least transcription is available
+        if not result.transcription:
+            return jsonify({"error": "Transcription not available for download"}), 400
+        
+        # Generate summary and questions if not already available
+        if not result.summary:
+            logger.info(f"Generating summary for download request - session: {session_id}")
+            result.summary = generate_summary(session_id)
+            
+        if not result.questions:
+            logger.info(f"Generating questions for download request - session: {session_id}")
+            result.questions = generate_content_questions(session_id)
+        
+        # Get current timestamp
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Create content for the text file
+        content = []
+        content.append("VIDEO TRANSCRIPTION AND ANALYSIS")
+        content.append(f"Generated on: {timestamp}\n")
+        
+        # Add transcription
+        content.append("=" * 50)
+        content.append("TRANSCRIPTION")
+        content.append("=" * 50)
+        content.append(result.transcription)
+        content.append("")
+        
+        # Add summary if available
+        if result.summary:
+            content.append("=" * 50)
+            content.append("SUMMARY")
+            content.append("=" * 50)
+            content.append(result.summary)
+            content.append("")
+        
+        # Add questions if available
+        if result.questions:
+            content.append("=" * 50)
+            content.append("QUESTIONS")
+            content.append("=" * 50)
+            # Check if questions is a list or string
+            if isinstance(result.questions, list):
+                for i, question in enumerate(result.questions, 1):
+                    content.append(f"{i}. {question}")
+            else:
+                content.append(result.questions)
+            content.append("")
+        
+        # Create a temporary file
+        fd, temp_path = tempfile.mkstemp(suffix='.txt')
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as temp_file:
+                temp_file.write('\n'.join(content))
+            
+            # Generate a filename for the download
+            download_filename = f"transcription_{session_id[:8]}_{datetime.now().strftime('%Y%m%d')}.txt"
+            
+            logger.info(f"Sending download file for session: {session_id}")
+            return send_file(
+                temp_path,
+                as_attachment=True,
+                download_name=download_filename,
+                mimetype='text/plain'
+            )
+        except Exception as e:
+            # Make sure to close and remove the temp file in case of error
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            raise e
+            
+    except Exception as e:
+        error_msg = f"Download error: {str(e)}"
+        logger.error(error_msg)
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({"error": error_msg}), 500
+
 # Simple health check endpoint
 @app.route('/', methods=['GET'])
 def health_check():
